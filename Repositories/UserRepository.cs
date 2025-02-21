@@ -1,14 +1,14 @@
 using System;
 using System.Threading.Tasks;
-using auth.Repositories;
+using auth.Interfaces;
 using Data;
 using Entities;
 using Enums;
 using Microsoft.EntityFrameworkCore;
 
-namespace Repositories
+namespace auth.Repositories
 {
-    public class UserRepository 
+    public class UserRepository : IUserRepository
     {
         private readonly AutheDbContext _context;
 

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
+using auth.Interfaces;
 using auth.Repositories;
 
 namespace Auth
@@ -9,13 +10,12 @@ namespace Auth
     {
         private readonly IApplicationRepository _applicationRepository;
         private readonly IUserRepository _userRepo;
-        private readonly IOauthTokenRepository _OauthRepo;
+
         private static readonly ConcurrentDictionary<string, string> _authCodes = new();
 
-        public OAuthService(IApplicationRepository applicationRepository, IUserRepository userRepository,
-            IOauthTokenRepository oauthTokenRepository)
+        public OAuthService(IApplicationRepository applicationRepository, IUserRepository userRepository )
         {
-            _OauthRepo = oauthTokenRepository;
+
             _applicationRepository = applicationRepository;
             _userRepo = userRepository;
         }
@@ -27,7 +27,7 @@ public async Task<string?> GenerateAuthorizationCodeAsync(string clientId, strin
         return null;
 
     var configLock = await _applicationRepository.GetConfigurationLockAsync(clientId);
-    if (configLock != null && configLock.CaptchaNeeded)
+    if (configLock != null && configLock.CaptchaNeeded==true)
         return null;
 
     string authCode = Guid.NewGuid().ToString();
@@ -52,7 +52,8 @@ public async Task<(string accessToken, string refreshToken)?> ValidateAndGenerat
                 return null;
             
 
-            var loginPolicy = await _userRepo.GetLoginPoliciesByUserID(user.Id);
+            var loginPolicy = await _userRepo.GetLoginPoliciesByUserID(user.Id.ToString());
+            
             if(loginPolicy.LockTypes == Enums.LockTypes.None)
             {
                 string accessToken = Guid.NewGuid().ToString();

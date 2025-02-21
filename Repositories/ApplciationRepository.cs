@@ -3,11 +3,12 @@ using System.Threading.Tasks;
 using System.Linq;
 using Entities;
 using Data;
+using auth.Interfaces;
 
 namespace auth.Repositories
 {
 
-    public class ApplicationRepository 
+    public class ApplicationRepository : IApplicationRepository
     {
         private readonly AutheDbContext _context;
 

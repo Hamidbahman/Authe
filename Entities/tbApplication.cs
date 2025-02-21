@@ -44,7 +44,6 @@ namespace Entities;
 
         public ConfigurationPassword ConfigurationPassword { get; private set; }
         public ConfigurationSession ConfigurationSession { get; private set; }
-        public ConfigurationLock ConfigurationLock { get; private set; }
         public ICollection<ConfigurationLock> ConfigurationLocks { get; private set; } = new List<ConfigurationLock>();
         public ICollection<Role> Roles { get; private set; } = new List<Role>();
         public ICollection<ApplicationPackage> ApplicationPackages { get; private set; } = new List<ApplicationPackage>();
