@@ -1,10 +1,12 @@
+using auth.Repositories;
 using Data;
 using Microsoft.EntityFrameworkCore;
+using Queries;
+using Repositories;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
+// Add services to the container
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
@@ -13,16 +15,29 @@ builder.Services.AddDbContext<AutheDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));
 });
 
+// Register the query service
+builder.Services.AddScoped<GetUserPasswordQuery>();
+
+
+// Add authentication and authorization services
+builder.Services.AddAuthentication(); // Add authentication if needed
+builder.Services.AddAuthorization();  // This fixes the error
+
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
+// Enforce HTTPS before anything else
+app.UseHttpsRedirection();
+
+// Enable Swagger in development
 if (app.Environment.IsDevelopment())
 {
     app.UseSwagger();
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// Ensure security middleware is before endpoints
+app.UseAuthentication();  // Make sure authentication is added before authorization
+app.UseAuthorization();
 
 var summaries = new[]
 {
@@ -31,7 +46,7 @@ var summaries = new[]
 
 app.MapGet("/weatherforecast", () =>
 {
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
+    var forecast = Enumerable.Range(1, 5).Select(index =>
         new WeatherForecast
         (
             DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
@@ -44,11 +59,28 @@ app.MapGet("/weatherforecast", () =>
 .WithName("GetWeatherForecast")
 .WithOpenApi();
 
-app.UseAuthentication();
-app.UseAuthorization();
+// Endpoint to get user password (with better error handling)
+app.MapGet("/user/password/{userId}", async (long userId, GetUserPasswordQuery query) =>
+{
+    if (userId <= 0)
+        return Results.BadRequest("Invalid user ID.");
+
+    try
+    {
+        var password = await query.ExecuteAsync(userId);
+        return password is not null ? Results.Ok(new { Password = password }) : Results.NotFound("User not found");
+    }
+    catch (Exception ex)
+    {
+        return Results.Problem($"An error occurred: {ex.Message}");
+    }
+})
+.WithName("GetUserPassword")
+.WithOpenApi();
 
 app.Run();
 
+// Record type for WeatherForecast
 record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
 {
     public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
