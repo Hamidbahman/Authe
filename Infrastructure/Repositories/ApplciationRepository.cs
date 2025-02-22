@@ -1,0 +1,35 @@
+
+using Authentication.Domain.Entities;
+using Authentication.Domain.Repositories;
+using Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace Authenitcation.Infrastructure.Repositories
+{
+
+    public class ApplicationRepository : IApplicationRepository
+    {
+        private readonly AutheDbContext _context;
+
+        public ApplicationRepository(AutheDbContext context)
+        {
+            _context = context;
+        }
+
+
+    public async Task<Application?> GetApplicationByClientIdAsync(string clientId)
+    {
+        return await _context.Applications
+            .FirstOrDefaultAsync(a => a.ClientId == clientId);        
+    }
+
+
+    public async Task<ConfigurationLock?> GetConfigurationLockAsync(string clientId)
+    {
+        return await _context.ConfigurationLocks
+            .Include(cl => cl.Application)
+            .FirstOrDefaultAsync(cl => cl.Application.ClientId == clientId);        
+    }
+    }
+}
+

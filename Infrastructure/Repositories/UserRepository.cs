@@ -1,0 +1,87 @@
+using System;
+using System.Threading.Tasks;
+using Authentication.Domain.Entities;
+using Authentication.Domain.Enums;
+using Authentication.Domain.Repositories;
+using Data;
+using Microsoft.EntityFrameworkCore;
+
+namespace Authentication.Infrastructure.Repositories
+{
+    public class UserRepository : IUserRepository
+    {
+        private readonly AutheDbContext _context;
+
+        public UserRepository(AutheDbContext context)
+        {
+            _context = context;
+        }
+        public async Task<User?> GetByUsernameAsync(string username)
+        {
+            return await _context.Users
+                .AsSplitQuery()
+                .Include(u => u.UserProperty)  // Load UserProperty (password stored here)
+                .Include(u => u.LoginPolicy)  // Load LoginPolicy for rules
+                .FirstOrDefaultAsync(u => u.Username == username);        
+        }
+
+        public async Task<bool> ValidatePasswordAsync(string username, string password)
+        {
+            var user = await GetByUsernameAsync(username);
+            if (user == null || user.UserProperty == null)
+                return false;
+
+            return user.UserProperty.Password == password; // ⚠️ Use hashing in production!
+        }
+        public async Task<bool> CheckLoginPolicyAsync(string username)
+        {
+            var user = await GetByUsernameAsync(username);
+            if (user == null || user.LoginPolicy == null)
+                return false;
+
+            var policy = user.LoginPolicy;
+            var now = DateTime.UtcNow;
+
+            // Check if the user is locked based on the lock type
+            if (policy.LockTypes == LockTypes.TemporaryLock)
+            {
+                // Check if the current time falls within the lock window
+                if (now >= policy.LockStartDateTime && now <= policy.LockEndDateTime)
+                {
+                    return false; // User is currently locked
+                }
+            }
+            else if (policy.LockTypes == LockTypes.PermanentLock)
+            {
+                return false; // User is permanently locked
+            }
+
+            return true; // User is allowed to log in
+        }
+
+        public async Task<LoginPolicy> GetLoginPoliciesByUserID(string userId)
+        {
+                if (!long.TryParse(userId, out var userIdLong))
+                    return null; // Invalid ID format
+
+                return await _context.LoginPolicies
+                    .FirstOrDefaultAsync(lp => lp.UserId == userIdLong);;        
+        }
+
+        public async Task<(string Username, string Password)?> GetUserCredentialsAsync(string username)
+{
+    var user = await GetByUsernameAsync(username);
+    if (user == null || user.UserProperty == null)
+        return null;
+
+    return (user.Username, user.UserProperty.Password);
+}
+
+    public async Task<bool> SaveChangesAsync()
+    {
+
+        return await _context.SaveChangesAsync() > 0;
+
+    }
+    }
+}
