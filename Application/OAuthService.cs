@@ -45,7 +45,7 @@ public async Task<string?> GenerateAuthorizationCodeAsync(string clientId, strin
 public async Task<(string accessToken, string refreshToken)?> ValidateAndGenerateTokensAsync(
     string username, string password, string authenticationCode)
 {
-    if (!_authCodes.TryRemove(authenticationCode, out var clientId))
+    if (!_authCodes.TryRemove(authenticationCode, out _))
         throw new AuthenticationException("Invalid or expired authentication code.");
 
     var user = await _userRepo.GetByUsernameAsync(username);
@@ -89,13 +89,19 @@ public async Task<(string accessToken, string refreshToken)?> ValidateAndGenerat
         }
         if (user.LoginAttempt < 5)
         {
-            bool isHuman = await _recaptchService.ValidateRecaptcha(recaptchaResponse);
+            string recaptchaResponse = "";
+            bool isHuman = await _recaptchService.ValidateRecaptchaAsync(recaptchaResponse);
             if(!isHuman)
                 throw new AuthenticationException("reCaptch verification failed");
 
         }
 
         throw new AuthenticationException("Username or password is incorrect.");
+    }
+    if(username == user.Username || password == user.UserProperty.Password)
+    {
+        if(user.TwoFactorEnabled == true)
+        {}
     }
 
     // Reset login attempts on successful login
@@ -124,7 +130,7 @@ public class TokenService
     public static string GenerateAccessToken(User user)
     {
         string payload = $"{user.Username}:{user.Id}:{DateTime.UtcNow.AddMinutes(AccessTokenExpiryMinutes):O}";
-        return GenerateHmacToken(payload, user.Id.ToString()); // Use userId as part of the key
+        return GenerateHmacToken(payload, user.Id.ToString()); 
     }
 
     public static string GenerateRefreshToken()

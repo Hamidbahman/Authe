@@ -1,4 +1,8 @@
 
+using Authenitcation.Infrastructure.Repositories;
+using Authentication.Application;
+using Authentication.Domain.Repositories;
+using Authentication.Infrastructure.Repositories;
 using Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
@@ -15,6 +19,11 @@ builder.Services.AddDbContext<AutheDbContext>(options =>
 {
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default"));    
 });
+
+builder.Services.AddScoped<IUserRepository, UserRepository>();
+builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
+builder.Services.AddScoped<OAuthService>();
+builder.Services.AddScoped<RecaptchaService>();
 
 
 

@@ -83,5 +83,11 @@ namespace Authentication.Infrastructure.Repositories
         return await _context.SaveChangesAsync() > 0;
 
     }
+
+        public async Task<User> GetUserByPhoneNumber(string phoneNumber)
+        {
+            User user = await _context.Users.FirstOrDefaultAsync(u=>u.PhoneNumber == phoneNumber);
+            return user;
+        }
     }
 }

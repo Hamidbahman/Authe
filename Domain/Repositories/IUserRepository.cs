@@ -11,5 +11,7 @@ namespace Authentication.Domain.Repositories
         Task<LoginPolicy?> GetLoginPoliciesByUserID(string userId);
         Task<(string Username, string Password)?> GetUserCredentialsAsync(string username);
         Task<bool> SaveChangesAsync();
+
+        Task<User> GetUserByPhoneNumber(string phoneNumber);
     }
 }

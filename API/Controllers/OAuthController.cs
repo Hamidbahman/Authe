@@ -1,62 +1,70 @@
 using Authentication.Application;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Authentication;
+using System.Threading.Tasks;
+
+namespace Authentication.Api.Controllers;
 
 
-namespace Authentication.APi.Controllers
-{
+
     [Route("api/oauth")]
     [ApiController]
     public class OAuthController : ControllerBase
     {
         private readonly OAuthService _oauthService;
+        private readonly RecaptchaService _recaptchaService;
 
-        public OAuthController(OAuthService oauthService)
+        public OAuthController(OAuthService oauthService, RecaptchaService recaptchaService)
         {
             _oauthService = oauthService;
+            _recaptchaService = recaptchaService;
         }
 
-        /// <summary>
-        /// Generates an authorization code for a given clientId and clientSecret.
-        /// </summary>
-        [HttpPost("generate-auth-code")]
-        public async Task<IActionResult> GenerateAuthorizationCode([FromBody] AuthCodeRequest request)
+
+
+        [HttpPost("authorize")]
+        public async Task<IActionResult> AuthorizeApplication([FromForm] string clientId, [FromForm] string clientSecret)
         {
-            var authCode = await _oauthService.GenerateAuthorizationCodeAsync(request.ClientId, request.ClientSecret);
+            var authCode = await _oauthService.GenerateAuthorizationCodeAsync(clientId, clientSecret);
             if (authCode == null)
-                return Unauthorized("Invalid client credentials or policy restriction.");
+                return Unauthorized(new { message = "Invalid client credentials or application restrictions." });
 
-            return Ok(new { AuthorizationCode = authCode });
+            return Ok(new { authenticationCode = authCode });
         }
 
         /// <summary>
-        /// Validates authentication code, user credentials, and generates access/refresh tokens.
+        /// Handles user login with 2FA and reCAPTCHA verification if required.
         /// </summary>
-        [HttpPost("validate-and-generate-tokens")]
-        public async Task<IActionResult> ValidateAndGenerateTokens([FromBody] TokenRequest request)
+        [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] LoginRequest request)
+    {
+        try
         {
             var tokens = await _oauthService.ValidateAndGenerateTokensAsync(
                 request.Username, request.Password, request.AuthenticationCode);
 
             if (tokens == null)
-                return Unauthorized("Invalid credentials or authentication code.");
+                return Unauthorized(new { message = "Invalid login credentials." });
 
-            return Ok(new { AccessToken = tokens.Value.accessToken, RefreshToken = tokens.Value.refreshToken });
+            return Ok(new 
+            { 
+                accessToken = tokens.Value.accessToken, 
+                refreshToken = tokens.Value.refreshToken 
+            });
+        }
+        catch (AuthenticationException ex)
+        {
+            return Unauthorized(new { message = ex.Message });
         }
     }
-
-    // DTOs for request payloads
-    public class AuthCodeRequest
+       
+    // DTO for Login Request
+    public class LoginRequest
     {
-        public string ClientId { get; set; }
-        public string ClientSecret { get; set; }
-    }
-
-    public class TokenRequest
-    {
-        public string ClientId { get; set; }
         public string Username { get; set; }
         public string Password { get; set; }
-        public string AuthenticationCode { get; set; }
+        public string AuthenticationCode {get;set;}
+        public string? RecaptchaResponse { get; set; } // Optional (only sent when required)
+        public string? TwoFactorCode { get; set; } // Optional (only sent when required)
     }
 }
