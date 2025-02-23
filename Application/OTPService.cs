@@ -2,9 +2,8 @@ using System;
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 using Authentication.Domain.Repositories;
-using Authentication.Domain.Entities;
 
-namespace Application
+namespace Authentication.Application
 {
     public class OTPService
     {
@@ -33,23 +32,36 @@ namespace Application
             return otp;
         }
 
-        public async Task<bool> ValidateOTPAsync(string phoneNumber, string inputOtp)
+
+
+
+
+
+        // 2FA-specific OTP generation
+        public async Task<string?> GenerateTwoFactorCodeAsync(string userId, int length = 6)
         {
-            var user = await _userRepo.GetUserByPhoneNumber(phoneNumber);
+            var user = await _userRepo.GetUserByPhoneNumber(userId);
             if (user == null)
             {
-                return false; // User not found
-            }
-            if(phoneNumber != user.PhoneNumber)
-            {
-                return false;
+                return null;
             }
 
-            if (otpStore.TryGetValue(phoneNumber, out var storedOtp) && storedOtp.expiry > DateTime.UtcNow)
+            var otp = new Random().Next(0, (int)Math.Pow(10, length)).ToString($"D{length}");
+            otpStore[userId] = (otp, DateTime.UtcNow.AddMinutes(5));
+
+            // Simulate sending OTP
+            Console.WriteLine($"2FA OTP for user {userId}: {otp}");
+
+            return otp;
+        }
+
+        public async Task<bool> ValidateTwoFactorCodeAsync(string userId, string inputOtp)
+        {
+            if (otpStore.TryGetValue(userId, out var storedOtp) && storedOtp.expiry > DateTime.UtcNow)
             {
                 if (storedOtp.otp == inputOtp)
                 {
-                    otpStore.TryRemove(phoneNumber, out _);
+                    otpStore.TryRemove(userId, out _);
                     return true;
                 }
             }

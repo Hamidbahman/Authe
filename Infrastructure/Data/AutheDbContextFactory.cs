@@ -1,0 +1,17 @@
+using System;
+using Data;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Design;
+
+namespace Infrastructure.Data;
+
+public class AutheDbContextFactory : IDesignTimeDbContextFactory<AutheDbContext>
+{
+    public AutheDbContext CreateDbContext(string[] args)
+    {
+        var optionsBuilder = new DbContextOptionsBuilder<AutheDbContext>();
+        optionsBuilder.UseSqlServer("Server=SAHAND;Database=SecuritySystem;User ID=Developer;Password=1qaz!QAZ;Encrypt=True;TrustServerCertificate=True;");
+
+        return new AutheDbContext(optionsBuilder.Options);
+    }
+}

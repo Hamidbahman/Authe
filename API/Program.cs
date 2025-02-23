@@ -4,15 +4,19 @@ using Authentication.Application;
 using Authentication.Domain.Repositories;
 using Authentication.Infrastructure.Repositories;
 using Data;
+using Microsoft.Build.Framework;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Options;
+using Authentication.Application;
 
 
 var builder = WebApplication.CreateBuilder(args);
 
 
 builder.Services.AddOpenApi();
-
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddControllers();
+builder.Services.AddSwaggerGen();
 
 
 builder.Services.AddDbContext<AutheDbContext>(options => 
@@ -23,17 +27,27 @@ builder.Services.AddDbContext<AutheDbContext>(options =>
 builder.Services.AddScoped<IUserRepository, UserRepository>();
 builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
 builder.Services.AddScoped<OAuthService>();
+builder.Services.AddScoped<OTPService>();
+builder.Services.AddHttpClient();
 builder.Services.AddScoped<RecaptchaService>();
 
 
 
 
 var app = builder.Build();
+app.UseRouting();
+app.UseAuthentication();
+app.UseAuthorization();
+app.UseEndpoints(endpoints=>
+{
+    endpoints.MapControllers();
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
 
 app.UseHttpsRedirection();

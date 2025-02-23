@@ -1,6 +1,5 @@
 
-
-using Entities;
+using Authentication.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 
 namespace Data;
@@ -164,8 +163,8 @@ public class AutheDbContext : DbContext
 
             modelBuilder.Entity<ConfigurationLock>()
                 .HasOne(cl => cl.Application)
-                .WithOne(a => a.ConfigurationLock)
-                .HasForeignKey<ConfigurationLock>(cl => cl.ApplicationId)
+                .WithMany(a => a.ConfigurationLocks)
+                .HasForeignKey(cl => cl.ApplicationId)
                 .OnDelete(DeleteBehavior.Cascade);
 
             #endregion
@@ -620,7 +619,7 @@ public class AutheDbContext : DbContext
                 captchaNeeded: true,
                 failedLoginAmountBeforeCaptcha: 3,
                 lockTimeInterval: 300, // Example: 5 minutes lock time
-                lockType: Enums.LockTypes.None, // Ensure this enum exists
+                lockType: Authentication.Domain.Enums.LockTypes.None, // Ensure this enum exists
                 applicationId: 1 // Ensure this ApplicationId exists in the Application table
             ));
 
@@ -631,7 +630,7 @@ public class AutheDbContext : DbContext
             #region SeedLockPolicy
             modelBuilder.Entity<LoginPolicy>().HasData(new LoginPolicy(
                 id: 1,
-                lockTypes: Enums.LockTypes.None, // Ensure this enum exists and is handled correctly
+                lockTypes: Authentication.Domain.Enums.LockTypes.None, // Ensure this enum exists and is handled correctly
                 userId: 1, // Ensure a User with this ID exists
                 lockStartDateTime: new DateTime(2024, 1, 1, 12, 0,0, DateTimeKind.Utc),
                 lockEndDateTime: new DateTime(2024, 1, 1, 12, 0,0, DateTimeKind.Utc) // Example: 30-minute lock

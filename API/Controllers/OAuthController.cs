@@ -1,70 +1,84 @@
+using System.Threading.Tasks;
 using Authentication.Application;
 using Microsoft.AspNetCore.Mvc;
-using System.Security.Authentication;
-using System.Threading.Tasks;
 
-namespace Authentication.Api.Controllers;
-
-
-
-    [Route("api/oauth")]
+namespace Authentication.API.Controllers
+{
+    [Route("api/[controller]")]
     [ApiController]
     public class OAuthController : ControllerBase
     {
-        private readonly OAuthService _oauthService;
-        private readonly RecaptchaService _recaptchaService;
+        private readonly OAuthService _authService;
 
-        public OAuthController(OAuthService oauthService, RecaptchaService recaptchaService)
+        public OAuthController(OAuthService authService)
         {
-            _oauthService = oauthService;
-            _recaptchaService = recaptchaService;
+            _authService = authService;
         }
-
-
 
         [HttpPost("authorize")]
-        public async Task<IActionResult> AuthorizeApplication([FromForm] string clientId, [FromForm] string clientSecret)
+        public async Task<IActionResult> GenerateAuthorizationCode([FromBody] AuthRequestDto request)
         {
-            var authCode = await _oauthService.GenerateAuthorizationCodeAsync(clientId, clientSecret);
+            var authCode = await _authService.GenerateAuthorizationCodeAsync(request.ClientId, request.ClientSecret);
             if (authCode == null)
-                return Unauthorized(new { message = "Invalid client credentials or application restrictions." });
+                return Unauthorized(new { message = "Invalid client credentials." });
 
-            return Ok(new { authenticationCode = authCode });
+            return Ok(new { authorizationCode = authCode });
         }
 
-        /// <summary>
-        /// Handles user login with 2FA and reCAPTCHA verification if required.
-        /// </summary>
         [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequest request)
-    {
-        try
+        public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
         {
-            var tokens = await _oauthService.ValidateAndGenerateTokensAsync(
-                request.Username, request.Password, request.AuthenticationCode);
+            var (isSuccess, requiresRecaptcha, requiresTwoFactor, tokens) = 
+                await _authService.LoginAsync(request.Username, request.Password, request.AuthorizationCode, request.RecaptchaResponse, request.TwoFactorCode);
 
-            if (tokens == null)
-                return Unauthorized(new { message = "Invalid login credentials." });
+            if (!isSuccess)
+            {
+                if (requiresRecaptcha)
+                    return BadRequest(new { message = "Recaptcha required.", requiresRecaptcha = true });
 
-            return Ok(new 
-            { 
-                accessToken = tokens.Value.accessToken, 
-                refreshToken = tokens.Value.refreshToken 
-            });
+                if (requiresTwoFactor)
+                    return BadRequest(new { message = "Two-factor authentication required.", requiresTwoFactor = true });
+
+                return Unauthorized(new { message = "Invalid credentials." });
+            }
+
+            return Ok(new { accessToken = tokens?.accessToken, refreshToken = tokens?.refreshToken });
         }
-        catch (AuthenticationException ex)
+
+        [HttpPost("validate-otp")]
+        public async Task<IActionResult> ValidateOtp([FromBody] OtpValidationRequestDto request)
         {
-            return Unauthorized(new { message = ex.Message });
+            try
+            {
+                var accessToken = await _authService.ValidateAndGenerateTokensAsync(request.OtpCode, request.PhoneNumber);
+                return Ok(new { accessToken });
+            }
+            catch (UnauthorizedAccessException ex)
+            {
+                return Unauthorized(new { message = ex.Message });
+            }
         }
-    }
-       
-    // DTO for Login Request
-    public class LoginRequest
-    {
-        public string Username { get; set; }
-        public string Password { get; set; }
-        public string AuthenticationCode {get;set;}
-        public string? RecaptchaResponse { get; set; } // Optional (only sent when required)
-        public string? TwoFactorCode { get; set; } // Optional (only sent when required)
     }
 }
+
+
+    public class AuthRequestDto
+    {
+        public string ClientId { get; set; } = string.Empty;
+        public string ClientSecret { get; set; } = string.Empty;
+    }
+
+    public class LoginRequestDto
+    {
+        public string Username { get; set; } = string.Empty;
+        public string Password { get; set; } = string.Empty;
+        public string AuthorizationCode { get; set; } = string.Empty;
+        public string? RecaptchaResponse { get; set; }
+        public string? TwoFactorCode { get; set; }
+    }
+
+    public class OtpValidationRequestDto
+    {
+        public string OtpCode { get; set; } = string.Empty;
+        public string PhoneNumber { get; set; } = string.Empty;
+    }
