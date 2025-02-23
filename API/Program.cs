@@ -29,7 +29,7 @@ builder.Services.AddScoped<IApplicationRepository, ApplicationRepository>();
 builder.Services.AddScoped<OAuthService>();
 builder.Services.AddScoped<OTPService>();
 builder.Services.AddHttpClient();
-builder.Services.AddScoped<RecaptchaService>();
+//builder.Services.AddScoped<RecaptchaService>();
 
 
 

@@ -1,18 +1,27 @@
 using System;
 using System.Collections.Concurrent;
+using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Authentication.Domain.Repositories;
+using Microsoft.Extensions.Configuration;
 
 namespace Authentication.Application
 {
     public class OTPService
     {
         private readonly IUserRepository _userRepo;
+        private readonly HttpClient _httpClient;
+        private readonly string _baseUrl;
+        private readonly string _apiKey;
         private static ConcurrentDictionary<string, (string otp, DateTime expiry)> otpStore = new();
 
-        public OTPService(IUserRepository userRepo)
+        public OTPService(IUserRepository userRepo, HttpClient httpClient, IConfiguration configuration)
         {
             _userRepo = userRepo;
+            _httpClient = httpClient;
+            _baseUrl = configuration["OTPService:BaseUrl"];
+            _apiKey = configuration["OTPService:Api_Key"];
         }
 
         public async Task<string?> GenerateOTPAsync(string phoneNumber, int length = 6)
@@ -20,24 +29,17 @@ namespace Authentication.Application
             var user = await _userRepo.GetUserByPhoneNumber(phoneNumber);
             if (user == null)
             {
-                return null; // User not found, return null or throw an exception
+                return null;
             }
 
             var otp = new Random().Next(0, (int)Math.Pow(10, length)).ToString($"D{length}");
-            otpStore[phoneNumber] = (otp, DateTime.UtcNow.AddMinutes(5)); // Expires in 5 minutes
+            otpStore[phoneNumber] = (otp, DateTime.UtcNow.AddMinutes(5));
 
-            // Simulate sending OTP (replace with an actual SMS API)
-            Console.WriteLine($"OTP for {phoneNumber}: {otp}");
-
-            return otp;
+            // Send OTP via external provider
+            bool success = await SendOTPToPhone(phoneNumber, otp);
+            return success ? otp : null;
         }
 
-
-
-
-
-
-        // 2FA-specific OTP generation
         public async Task<string?> GenerateTwoFactorCodeAsync(string userId, int length = 6)
         {
             var user = await _userRepo.GetUserByPhoneNumber(userId);
@@ -49,10 +51,8 @@ namespace Authentication.Application
             var otp = new Random().Next(0, (int)Math.Pow(10, length)).ToString($"D{length}");
             otpStore[userId] = (otp, DateTime.UtcNow.AddMinutes(5));
 
-            // Simulate sending OTP
-            Console.WriteLine($"2FA OTP for user {userId}: {otp}");
-
-            return otp;
+            bool success = await SendOTPToPhone(userId, otp);
+            return success ? otp : null;
         }
 
         public async Task<bool> ValidateTwoFactorCodeAsync(string userId, string inputOtp)
@@ -65,8 +65,30 @@ namespace Authentication.Application
                     return true;
                 }
             }
-
             return false;
+        }
+
+        private async Task<bool> SendOTPToPhone(string phoneNumber, string otp)
+        {
+            var requestBody = new
+            {
+                apiKey = _apiKey,
+                recipient = phoneNumber,
+                message = $"Your OTP code is: {otp}"
+            };
+
+            var content = new StringContent(JsonSerializer.Serialize(requestBody), System.Text.Encoding.UTF8, "application/json");
+
+            try
+            {
+                var response = await _httpClient.PostAsync(_baseUrl, content);
+                return response.IsSuccessStatusCode;
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Failed to send OTP: {ex.Message}");
+                return false;
+            }
         }
     }
 }
