@@ -1,12 +1,12 @@
 using System;
 using System.Threading.Tasks;
-using auth.Interfaces;
+using Authentication.Domain.Entities;
+using Authentication.Domain.Enums;
+using Authentication.Domain.Repositories;
 using Data;
-using Entities;
-using Enums;
 using Microsoft.EntityFrameworkCore;
 
-namespace auth.Repositories
+namespace Authentication.Infrastructure.Repositories
 {
     public class UserRepository : IUserRepository
     {
@@ -77,5 +77,17 @@ namespace auth.Repositories
     return (user.Username, user.UserProperty.Password);
 }
 
+    public async Task<bool> SaveChangesAsync()
+    {
+
+        return await _context.SaveChangesAsync() > 0;
+
+    }
+
+        public async Task<User> GetUserByPhoneNumber(string phoneNumber)
+        {
+            User user = await _context.Users.FirstOrDefaultAsync(u=>u.PhoneNumber == phoneNumber);
+            return user;
+        }
     }
 }

@@ -31,4 +31,10 @@ public class LoginPolicy : BaseEntity
         LockStartDateTime = lockStartDateTime;
         LockEndDateTime = lockEndDateTime;
     }
+
+    public void SetLockType(LockTypes lockType)
+    {
+        LockTypes = lockType;
+    }
+
 }

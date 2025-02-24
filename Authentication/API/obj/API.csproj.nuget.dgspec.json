@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\API\\API.csproj": {}
+    "C:\\Users\\hamid.RYMOND\\latest\\authentication\\api\\API.csproj": {}
   },
   "projects": {
-    "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\API\\API.csproj": {
+    "C:\\Users\\hamid.RYMOND\\latest\\authentication\\api\\API.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\API\\API.csproj",
+        "projectUniqueName": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\api\\API.csproj",
         "projectName": "API",
-        "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\API\\API.csproj",
+        "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\api\\API.csproj",
         "packagesPath": "C:\\Users\\hamid.RYMOND\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\API\\obj\\",
+        "outputPath": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\api\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -32,11 +32,11 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Application\\Application.csproj": {
-                "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Application\\Application.csproj"
+              "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Application\\Application.csproj": {
+                "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Application\\Application.csproj"
               },
-              "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Infrastructure\\Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Infrastructure\\Infrastructure.csproj"
+              "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Infrastructure\\Infrastructure.csproj"
               }
             }
           }
@@ -57,9 +57,25 @@
         "net9.0": {
           "targetAlias": "net9.0",
           "dependencies": {
+            "Microsoft.AspNetCore.Mvc": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
               "version": "[9.0.2, )"
+            },
+            "Swashbuckle.AspNetCore.Swagger": {
+              "target": "Package",
+              "version": "[7.2.0, )"
+            },
+            "Swashbuckle.AspNetCore.SwaggerGen": {
+              "target": "Package",
+              "version": "[7.2.0, )"
+            },
+            "Swashbuckle.AspNetCore.SwaggerUI": {
+              "target": "Package",
+              "version": "[7.2.0, )"
             }
           },
           "imports": [
@@ -85,14 +101,14 @@
         }
       }
     },
-    "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Application\\Application.csproj": {
+    "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Application\\Application.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Application\\Application.csproj",
+        "projectUniqueName": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Application\\Application.csproj",
         "projectName": "Application",
-        "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Application\\Application.csproj",
+        "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Application\\Application.csproj",
         "packagesPath": "C:\\Users\\hamid.RYMOND\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Application\\obj\\",
+        "outputPath": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Application\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -113,8 +129,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Infrastructure\\Infrastructure.csproj": {
-                "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Infrastructure\\Infrastructure.csproj"
+              "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Infrastructure\\Infrastructure.csproj": {
+                "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Infrastructure\\Infrastructure.csproj"
               }
             }
           }
@@ -134,6 +150,24 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.AspNetCore.Http": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
+            "Microsoft.AspNetCore.Http.Extensions": {
+              "target": "Package",
+              "version": "[2.3.0, )"
+            },
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "Microsoft.Extensions.Configuration": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -154,14 +188,14 @@
         }
       }
     },
-    "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Domain\\Domain.csproj": {
+    "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Domain\\Domain.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Domain\\Domain.csproj",
+        "projectUniqueName": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Domain\\Domain.csproj",
         "projectName": "Domain",
-        "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Domain\\Domain.csproj",
+        "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Domain\\Domain.csproj",
         "packagesPath": "C:\\Users\\hamid.RYMOND\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Domain\\obj\\",
+        "outputPath": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Domain\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -199,6 +233,20 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore.Design": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",
@@ -219,14 +267,14 @@
         }
       }
     },
-    "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Infrastructure\\Infrastructure.csproj": {
+    "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Infrastructure\\Infrastructure.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Infrastructure\\Infrastructure.csproj",
+        "projectUniqueName": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Infrastructure\\Infrastructure.csproj",
         "projectName": "Infrastructure",
-        "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Infrastructure\\Infrastructure.csproj",
+        "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Infrastructure\\Infrastructure.csproj",
         "packagesPath": "C:\\Users\\hamid.RYMOND\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Infrastructure\\obj\\",
+        "outputPath": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Infrastructure\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files (x86)\\Microsoft Visual Studio\\Shared\\NuGetPackages"
@@ -247,8 +295,8 @@
           "net9.0": {
             "targetAlias": "net9.0",
             "projectReferences": {
-              "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Domain\\Domain.csproj": {
-                "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\Authentication\\Domain\\Domain.csproj"
+              "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Domain\\Domain.csproj": {
+                "projectPath": "C:\\Users\\hamid.RYMOND\\latest\\authentication\\Domain\\Domain.csproj"
               }
             }
           }
@@ -268,6 +316,24 @@
       "frameworks": {
         "net9.0": {
           "targetAlias": "net9.0",
+          "dependencies": {
+            "Microsoft.EntityFrameworkCore": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "Microsoft.EntityFrameworkCore.Design": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "Microsoft.EntityFrameworkCore.SqlServer": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            },
+            "Microsoft.EntityFrameworkCore.Tools": {
+              "target": "Package",
+              "version": "[9.0.2, )"
+            }
+          },
           "imports": [
             "net461",
             "net462",

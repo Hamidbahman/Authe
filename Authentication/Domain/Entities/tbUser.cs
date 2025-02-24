@@ -1,6 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using Authentication.Domain.Enums;
 
 namespace Authentication.Domain.Entities;
 
@@ -106,6 +107,13 @@ namespace Authentication.Domain.Entities;
     UserBiometric = userBiometric;
     UserRoles = userRoles ?? new List<UserRole>(); // ✅ Ensure it's never null
 }
-
+    public void IncrementLoginAttempt()
+    {
+        LoginAttempt += 1;
     }
+    public void ResetLoginAttempt()
+    {
+        LoginAttempt = 0;
+    }
+}
 
